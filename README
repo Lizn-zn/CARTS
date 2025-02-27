@@ -1,4 +1,31 @@
-1. get data
+# CARTS: Advancing Neural Theorem Proving with Diversified Tactic Calibration and Bias-Resistant Tree Search
+
+[![Openreview](https://img.shields.io/badge/OpenReview-CARTS-red.svg)](https://openreview.net/forum?id=VQwI055flA)   [![GitHub last commit](https://img.shields.io/github/last-commit/njuyxw/CARTS.svg)](https://github.com/njuyxw/CARTS) [![Home Page](https://img.shields.io/badge/Home-Page-blue.svg)](https://njuyxw.github.io/assets/CARTS/index.html)
+
+
+A novel approach for neural theorem proving that combines diversified tactic calibration with bias-resistant tree search. Published at ICLR 2025.
+
+## Overview
+
+This repository implements CARTS (diversified tactic CAlibration and bias-Resistant Tree Search), which balances tactic diversity and importance while calibrating model confidence. CARTS also introduces preference modeling and an adjustment term related to the ratio of valid tactics to improve the bias-resistance of the value function.
+
+## Getting Started
+TODO
+1. Get data
 python scripts/trace.py 
 2. run CARTS
 sh run.sh 
+
+
+## Citation
+
+If you use this work, please cite it as follows:
+
+```
+@article{carts2025,
+  title={CARTS: Advancing Neural Theorem Proving with Diversified Tactic Calibration and Bias-Resistant Tree Search},
+  author={Yang, Xiao-Wen and Zhou, Zhi and Wang, Haiming and Li, Aoxue and Wei, Wen-Da and Jin, Hui and Li, Zhenguo and Li, Yu-Feng},
+  journal={ICLR},
+  year={2025}
+}
+```
