@@ -1,0 +1,4 @@
+1. get data
+python scripts/trace.py 
+2. run CARTS
+sh run.sh 
