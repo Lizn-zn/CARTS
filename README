@@ -1,6 +1,6 @@
 # CARTS: Advancing Neural Theorem Proving with Diversified Tactic Calibration and Bias-Resistant Tree Search
 
-[![Openreview](https://img.shields.io/badge/OpenReview-CARTS-red.svg)](https://openreview.net/forum?id=VQwI055flA)  [![Home Page](https://img.shields.io/badge/Home-Page-blue.svg)](https://njuyxw.github.io/assets/CARTS/index.html)
+<!-- [![Openreview](https://img.shields.io/badge/OpenReview-CARTS-red.svg)](https://openreview.net/forum?id=VQwI055flA)  [![Home Page](https://img.shields.io/badge/Home-Page-blue.svg)](https://njuyxw.github.io/assets/CARTS/index.html) -->
 
 
 A novel approach for neural theorem proving that combines diversified tactic calibration with bias-resistant tree search. Published at **ICLR 2025**.
