@@ -11,7 +11,7 @@ from lean_dojo import (
     LeanGitRepo,
     TacticState,
     LeanError,
-    TimeoutError,
+    DojoTacticTimeoutError,
     ProofFinished,
     ProofGivenUp,
     DojoInitError,
@@ -213,7 +213,7 @@ class MCTSProver(object):
         while True:
             try:
                 self._step()
-            except DojoHardTimeoutError:
+            except DojoTacticTimeoutError:
                 assert time.monotonic() - time_start >= self.timeout
 
             self.total_time = time.monotonic() - time_start

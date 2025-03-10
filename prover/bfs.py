@@ -1,8 +1,5 @@
 """Proof search using best-first search.
 """
-import os
-import sys
-import ray
 import time
 import heapq
 import torch
@@ -13,7 +10,6 @@ from lean_dojo import (
     LeanGitRepo,
     TacticState,
     LeanError,
-    TimeoutError,
     ProofFinished,
     ProofGivenUp,
     DojoInitError,
@@ -51,11 +47,12 @@ class BestFirstSearchProver:
         self,
         tac_gen,  # A given tactic generator.
         timeout: int,
+        iterations: int,
         num_sampled_tactics: int,
         debug: bool,
         reward_model_path=None,
-        rm_tokenizer=None,
-        reward_model=None
+        reward_model=None,
+        **kwargs
     ) -> None:
         self.tac_gen = tac_gen
         self.timeout = timeout
@@ -67,28 +64,10 @@ class BestFirstSearchProver:
         self.environment_time = 0.0
         self.total_time = None
         self.reward_model_path=reward_model_path
-        self.rm_tokenizer=rm_tokenizer
         self.reward_model=reward_model
         self.template='Human: {}\nAssistant: '
             
         assert self.reward_model_path is None
-    
-    def get_value_suggestions(self,state,suggestions):
-        #not used
-        ststr=self.template.format(state)
-        inputs_text=[ststr+tactic for (tactic,_) in suggestions]
-        new_suggestions=[]
-        with torch.no_grad():
-            for k in range(len(inputs_text)//4):
-                inputs_text_k=inputs_text[4*k:4*(k+1)]
-                inputs =self.rm_tokenizer(inputs_text_k, return_tensors="pt",padding=True, truncation=True,return_attention_mask=False, max_length=2048)
-                _,_,outputs = self.reward_model(inputs['input_ids'].cuda())
-                outputs=outputs.cpu()
-                for i in range(4):
-                    chosen_length = (inputs['input_ids'][i] !=self.rm_tokenizer.pad_token_id).nonzero()[-1] + 1
-                    reward=float(outputs[i][chosen_length - 1])
-                    new_suggestions.append((suggestions[4*k+i][0],reward))
-        return new_suggestions
     
     def search(
         self, repo: LeanGitRepo, thm: Theorem, pos: Pos
@@ -226,9 +205,6 @@ class BestFirstSearchProver:
         t0 = time.monotonic()
 
         path = str(self.theorem.file_path)
-
-        # if self.theorem.repo != self.repo:
-        #     path = self.theorem.repo.get_packages_dir() / self.theorem.repo.name / path
 
         suggestions = self.tac_gen.generate(
             state=ts,

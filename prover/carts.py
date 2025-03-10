@@ -1,6 +1,5 @@
 
 import numpy as np
-import copy
 import torch
 import torch.nn.functional as F
 import time
@@ -11,23 +10,24 @@ from lean_dojo import (
     LeanGitRepo,
     TacticState,
     LeanError,
-    TimeoutError,
     ProofFinished,
     ProofGivenUp,
     DojoInitError,
     DojoCrashError,
     DojoTacticTimeoutError
 )
-from transformers import T5EncoderModel,AutoTokenizer,AutoModel
-import sys 
-sys.path.append("../")
+from transformers import AutoTokenizer,AutoModel
+# import sys 
+# sys.path.append("../")
 from typing import List, Optional, Tuple
 from prover.search_tree import *
 from loguru import logger
+
 def batch(iterable, batch_size):
     length = len(iterable)
     for i in range(0, length, batch_size):
         yield iterable[i:i + batch_size]
+        
 @dataclass(frozen=True)
 class SearchResult:
     """The result of attempting to prove a theorem."""
@@ -42,6 +42,7 @@ class SearchResult:
     total_time: float
     num_total_nodes: int
     num_searched_nodes: int
+    
 def softmax(x, T=1.0):
     x=np.array(x)
     x = x / T
@@ -100,8 +101,6 @@ class BaseTreeNode(object):
     def update(self, leaf_value):
         # Count visit.
         self._n_visits =self._n_visits+ 1
-        # Update Q, a running average of values for all visits.
-        # self._Q += 1.0*(leaf_value - self._Q) / self._n_visits
         self._W=self._W+leaf_value
     
     def update_recursive(self, leaf_value):
@@ -113,7 +112,6 @@ class BaseTreeNode(object):
 
     def get_value(self, c_puct):
         self._u = c_puct * self._P * np.sqrt(self._parent._n_visits) / (1 + self._n_visits)
-        # print(self.tactic,self._W / (self._n_visits+1),self._u)
         return self._W/ (self._n_visits+1) + self._u
     
     def is_leaf(self):
@@ -125,7 +123,7 @@ class BaseTreeNode(object):
         return "Status: {} State: {}".format(self.status,self.state)
 
 
-class MCTSRerankerProver(object):
+class CARTSProver(object):
     def __init__(
         self,
         tac_gen,  # A given tactic generator.
@@ -251,9 +249,6 @@ class MCTSRerankerProver(object):
         selected = []
         unselected = list(range(n))
         new_scores = [0] * n
-        # first_index = unselected.pop(sim1.index(max(sim1)))
-        # new_scores[first_index] = sim1[first_index]
-        # selected.append(first_index)
         
         while len(selected) < k and unselected:
             max_mmr = -float('inf')
@@ -306,8 +301,6 @@ class MCTSRerankerProver(object):
                 
             elapsed = time.monotonic() - t0
             self.environment_time += elapsed
-            # if self.environment_time>self.timeout:
-            #     raise TimeoutError
             
             if isinstance(resp, ProofFinished):
                 return [tactics[i]],[resp],[float('inf')],len(suggestions)
@@ -320,19 +313,12 @@ class MCTSRerankerProver(object):
         if len(new_tactics)==0:
             return [],[],[],0
         
-
-        #rank
+        #rerank
         sim1=[np.exp(logprob) for logprob in new_logprobs]
         embeddings=self.get_state_embedding(next_states+[node.state.pp])
 
         sim2=torch.matmul(embeddings,embeddings.T).cpu().numpy()
         mmr_indexes,new_scores=self.mmr(sim1,sim2,k=self.k)
-        
-        #no rank
-        # mmr_indexes=range(len(new_tactics))
-        # new_scores=[np.exp(logprob) for logprob in new_logprobs]
-        # assert len(new_scores)==len(new_tactics)
-        
         
         rerank_tactics=[new_tactics[index] for index in mmr_indexes]
         rerank_resonse=[new_response[index] for index in mmr_indexes]
@@ -448,6 +434,6 @@ class MCTSRerankerProver(object):
         return suggestions
  
     def __str__(self):
-        return "MCTS_Reranker"
+        return "CARTS"
     
     

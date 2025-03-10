@@ -1,11 +1,7 @@
 """Proof search using best-first search.
 """
-import os
 import sys
 import ray
-import time
-import heapq
-import torch
 from lean_dojo import (
     Pos,
     Dojo,
@@ -13,7 +9,6 @@ from lean_dojo import (
     LeanGitRepo,
     TacticState,
     LeanError,
-    TimeoutError,
     ProofFinished,
     ProofGivenUp,
     DojoInitError,
@@ -28,17 +23,15 @@ from common import zip_strict
 
 from models import MODELS
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
-from trl import AutoModelForCausalLMWithValueHead
-
 
 from prover.bfs import BestFirstSearchProver,SearchResult,Status
-from prover.mcts_reranker import MCTSRerankerProver
+from prover.carts import CARTSProver
 from prover.mcts import MCTSProver
 
 PROVERS={
     'BFS': BestFirstSearchProver,
     'MCTS': MCTSProver,
-    'MCTS_Reranker': MCTSRerankerProver
+    'CARTS':CARTSProver
 }
 
 from prover.value_function import ActorValueFunction

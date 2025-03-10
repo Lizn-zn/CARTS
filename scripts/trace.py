@@ -12,9 +12,7 @@ from typing import Dict, List, Union
 import lean_dojo
 from lean_dojo import *
 
-random.seed(3407)  # https://arxiv.org/abs/2109.08203
-
-
+random.seed(3407)  
 
 SPLIT_NAME = str  # train/val/test
 SPLIT = Dict[SPLIT_NAME, List[TracedTheorem]]
@@ -44,7 +42,7 @@ def export_proofs(splits: Dict[SPLIT_STRATEGY, SPLIT], dst_path: Path) -> None:
                 num_tactics += len(tactics)
                 data.append(
                     {
-                        "url": thm.repo.url,
+                        "url": "https://github.com/yangky11/miniF2F-lean4",
                         "commit": thm.repo.commit,
                         "file_path": str(thm.theorem.file_path),
                         "full_name": thm.theorem.full_name,
@@ -150,8 +148,6 @@ traced_minif2f = trace(minif2f)
 splits = {"default": {"val": [], "test": []}}
 
 for tf in traced_minif2f.get_traced_theorems():
-    # if tf.repo.name != "lean4":
-    #     continue
     if tf.file_path.name == "Valid.lean":
         splits["default"]["val"].append(tf)
     elif tf.file_path.name  == "Test.lean" and tf.theorem.full_name!='sum_pairs':

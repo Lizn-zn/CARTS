@@ -8,7 +8,7 @@ import numpy as np
 
 
 class ActorValueFunction:
-    def __init__(self,model_path='./ATP_vf_v2'):
+    def __init__(self,model_path='yangxw/CARTS_vf'):
         
             self.template="<|user|>\n{}<|end|>\n<|assistant|>\n{}"
             self.tokenizer = AutoTokenizer.from_pretrained(
