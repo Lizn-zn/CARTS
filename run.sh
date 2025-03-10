@@ -1,5 +1,5 @@
 # CARTS
-CUDA_VISIBLE_DEVICESS=0,1,2,3 python evaluate.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3 python evaluate.py \
 --data-path ./data/minif2f_lean4_v4.10.0/default/ \
 --prover CARTS \
 --model_name reprover \
@@ -17,7 +17,7 @@ CUDA_VISIBLE_DEVICESS=0,1,2,3 python evaluate.py \
 
 
 ## BFS
-# CUDA_VISIBLE_DEVICESS=0,1,2,3 python evaluate.py \
+# CUDA_VISIBLE_DEVICES=0,1,2,3 python evaluate.py \
 # --data-path ./data/minif2f_lean4_v4.10.0/default/ \
 # --prover BFS \
 # --model_name reprover \
