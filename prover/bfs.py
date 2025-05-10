@@ -23,6 +23,8 @@ from ray.util.actor_pool import ActorPool
 
 from common import zip_strict
 from prover.search_tree import *
+from prover.repl import LeanIOContext
+
 
 @dataclass(frozen=True)
 class SearchResult:
@@ -76,18 +78,18 @@ class BestFirstSearchProver:
 
         self.repo = repo
         self.theorem = thm
-        self.posision = pos
+        self.position = pos # not used in bfs
         self.actor_time = 0.0
         self.environment_time = 0.0
         self.num_expansions = 0
 
         imps = ["Mathlib.Tactic"]
         try:
-            with Dojo(thm, timeout=self.timeout, additional_imports=imps) as (
-                dojo,
+            with LeanIOContext(thm, timeout=self.timeout, additional_imports=imps) as (
+                repl,
                 init_state,
             ):
-                self.dojo = dojo
+                self.repl = repl
                 self.root = InternalNode(
                     state=init_state,
                     cumulative_logprob=0.0,
@@ -210,7 +212,7 @@ class BestFirstSearchProver:
             state=ts,
             file_path=path,
             theorem_full_name=self.theorem.full_name,
-            theorem_pos=self.posision,
+            theorem_pos=self.position,
             num_samples=self.num_sampled_tactics,
         )
 
@@ -221,8 +223,9 @@ class BestFirstSearchProver:
 
     def _run_tactic(self, node: InternalNode, tactic: str, logprob: float) -> Edge:
         t0 = time.monotonic()
-        
-        response = self.dojo.run_tac(node.state, tactic)
+        print(node.state)
+        exit()
+        response = self.repl.apply(node.state, tactic)
         elapsed = time.monotonic() - t0
         self.environment_time += elapsed
         try:
